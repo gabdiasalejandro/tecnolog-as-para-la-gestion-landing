@@ -22,8 +22,8 @@
 
 /* ===================== BASE ===================== */
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:var(--ff);color:var(--ink);background:var(--paper);line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+html{scroll-behavior:smooth;overflow-x:clip}
+body{font-family:var(--ff);color:var(--ink);background:var(--paper);line-height:1.6;overflow-x:clip;-webkit-font-smoothing:antialiased}
 img{max-width:100%;display:block}
 a{color:inherit;text-decoration:none}
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
@@ -42,17 +42,20 @@ p.lead{font-size:clamp(1.05rem,2vw,1.25rem);color:var(--muted)}
 /* ===================== PROGRESS + NAV ===================== */
 #progress{position:fixed;top:0;left:0;height:4px;width:0;background:linear-gradient(90deg,var(--green-500),var(--green-300));z-index:120;transition:background .6s}
 nav{position:fixed;top:0;left:0;right:0;z-index:110;display:flex;align-items:center;justify-content:space-between;
-  padding:14px 28px;backdrop-filter:blur(10px);background:rgba(247,249,246,.7);border-bottom:1px solid rgba(20,36,28,.06);transition:background .6s,color .6s}
-nav .brand{display:flex;align-items:center;gap:10px;font-weight:800;color:var(--green-900);font-size:1.02rem}
-nav .brand .leaf{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--green-700),var(--green-300));display:grid;place-items:center;color:#fff;font-size:1rem}
-nav ul{display:flex;gap:6px;list-style:none}
-nav ul a{padding:8px 14px;border-radius:999px;font-size:.86rem;font-weight:500;color:var(--muted);transition:.2s}
-nav ul a:hover{background:var(--green-100);color:var(--green-800)}
+  padding:20px 28px;background:transparent;border-bottom:1px solid transparent;transition:padding .35s,background .35s,border-color .35s,box-shadow .35s}
+nav.scrolled{padding:11px 28px;background:rgba(247,249,246,.66);backdrop-filter:blur(14px) saturate(1.15);border-bottom-color:rgba(20,36,28,.06);box-shadow:0 8px 30px -22px rgba(20,36,28,.55)}
+nav .brand{display:flex;align-items:center;gap:9px;font-weight:700;color:var(--green-900);font-size:.98rem;opacity:.9;transition:opacity .3s}
+nav.scrolled .brand{opacity:1}
+nav .brand .leaf{width:28px;height:28px;border-radius:9px;background:linear-gradient(135deg,var(--green-700),var(--green-300));display:grid;place-items:center;color:#fff;font-size:.95rem}
+nav ul{display:flex;gap:2px;list-style:none}
+nav ul a{padding:8px 13px;border-radius:999px;font-size:.85rem;font-weight:500;color:var(--green-800);opacity:.72;transition:.2s}
+nav ul a:hover{opacity:1;background:rgba(46,139,87,.1)}
 body.ai-mode #progress{background:linear-gradient(90deg,var(--amber-500),var(--pink-300))}
-body.ai-mode nav{background:rgba(253,250,245,.72)}
+body.ai-mode nav.scrolled{background:rgba(253,250,245,.68)}
 body.ai-mode nav .brand{color:var(--amber-600)}
 body.ai-mode nav .brand .leaf{background:linear-gradient(135deg,var(--amber-600),var(--amber-300))}
-body.ai-mode nav ul a:hover{background:#fbe7cf;color:var(--amber-600)}
+body.ai-mode nav ul a{color:var(--amber-600)}
+body.ai-mode nav ul a:hover{background:rgba(224,165,43,.14)}
 .navtoggle{display:none}
 @media(max-width:820px){nav ul{display:none}}
 
@@ -81,7 +84,7 @@ body.ai-mode nav ul a:hover{background:#fbe7cf;color:var(--amber-600)}
 .mouse::after{content:"";position:absolute;top:7px;left:50%;transform:translateX(-50%);width:4px;height:7px;border-radius:2px;background:var(--muted);animation:scrolly 1.6s infinite}
 @keyframes scrolly{0%{opacity:0;transform:translate(-50%,0)}40%{opacity:1}100%{opacity:0;transform:translate(-50%,12px)}}
 @media(max-width:880px){.hero{grid-template-columns:1fr;text-align:center;padding-top:110px}
-  .hero-text{padding-left:0;padding:0 24px}.team-chips{justify-content:center;margin-inline:auto}.hero-media{order:-1;min-height:auto;margin-top:10px}.hero-media .frame{transform:none;width:min(80%,320px)}.hero-text .sub{margin-inline:auto}}
+  .hero-text{padding-left:0;padding:0 24px}.team-chips{justify-content:center;margin-inline:auto}.hero-media{order:-1;min-height:auto;margin-top:10px}.hero-media .frame{transform:none;width:min(80%,320px)}.hero-media .ring{display:none}.hero-text .sub{margin-inline:auto}}
 
 /* ===================== SECTION SHELL ===================== */
 .sec{padding:clamp(70px,11vh,120px) 0}
@@ -507,11 +510,12 @@ body.ai-mode #top{background:var(--amber-600)}
 
 <script>
 /* progress bar */
-const prog=document.getElementById('progress'),topBtn=document.getElementById('top');
+const prog=document.getElementById('progress'),topBtn=document.getElementById('top'),navEl=document.querySelector('nav');
 addEventListener('scroll',()=>{
   const h=document.documentElement,sc=h.scrollTop/(h.scrollHeight-h.clientHeight);
   prog.style.width=(sc*100)+'%';
   topBtn.classList.toggle('show',h.scrollTop>600);
+  navEl.classList.toggle('scrolled',h.scrollTop>40);
 },{passive:true});
 topBtn.onclick=()=>scrollTo({top:0,behavior:'smooth'});
 
