@@ -1,0 +1,19 @@
+# Source material (large) — not needed to serve the site
+*.pdf
+links.txt
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*~
+
+# Dependencies / build (none today, kept for safety)
+node_modules/
+dist/
+.cache/

@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emprendimiento e Impacto Ambiental — Tecnologías de Gestión</title>
+<meta name="description" content="Proyecto de Tecnologías de Gestión: emprendimiento con impacto ambiental y el asistente virtual EnergyCo.">
+<style>
+/* ===================== TOKENS ===================== */
+:root{
+  --green-900:#143d2b; --green-800:#1b5e3f; --green-700:#22754f;
+  --green-500:#2e8b57; --green-300:#8fd14f; --green-100:#e7f3ea;
+  --ink:#14241c; --muted:#5c6b62; --paper:#f7f9f6; --white:#ffffff;
+  --amber-600:#c98a1e; --amber-500:#e0a52b; --amber-300:#f4c95d;
+  --pink-300:#f3b9c9; --violet-300:#cdb6f0;
+  --ai-ink:#1d1f2b; --ai-muted:#5a5d70; --ai-paper:#fdfaf5;
+  --maxw:1180px; --r:18px; --shadow:0 18px 50px -22px rgba(20,36,28,.45);
+  --shadow-sm:0 8px 24px -14px rgba(20,36,28,.4);
+  --ff:'Poppins',system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+}
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+/* ===================== BASE ===================== */
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--ff);color:var(--ink);background:var(--paper);line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+section{position:relative}
+.eyebrow{font-size:.78rem;letter-spacing:.22em;text-transform:uppercase;font-weight:700;color:var(--green-700)}
+h1,h2,h3{line-height:1.1;font-weight:800;letter-spacing:-.01em}
+h2{font-size:clamp(1.9rem,4.5vw,3rem);color:var(--green-900)}
+h3{font-size:1.25rem}
+p.lead{font-size:clamp(1.05rem,2vw,1.25rem);color:var(--muted)}
+
+/* ===================== DECOR ===================== */
+.dotgrid{position:absolute;width:130px;height:130px;background-image:radial-gradient(var(--green-300) 2.4px,transparent 2.6px);background-size:22px 22px;opacity:.55;z-index:0;pointer-events:none}
+.stripes{position:absolute;width:160px;height:120px;background:repeating-linear-gradient(135deg,var(--green-800) 0 8px,transparent 8px 18px);opacity:.8;z-index:0;pointer-events:none}
+.blob{position:absolute;border-radius:50%;filter:blur(60px);opacity:.5;z-index:0;pointer-events:none}
+
+/* ===================== PROGRESS + NAV ===================== */
+#progress{position:fixed;top:0;left:0;height:4px;width:0;background:linear-gradient(90deg,var(--green-500),var(--green-300));z-index:120;transition:background .6s}
+nav{position:fixed;top:0;left:0;right:0;z-index:110;display:flex;align-items:center;justify-content:space-between;
+  padding:14px 28px;backdrop-filter:blur(10px);background:rgba(247,249,246,.7);border-bottom:1px solid rgba(20,36,28,.06);transition:background .6s,color .6s}
+nav .brand{display:flex;align-items:center;gap:10px;font-weight:800;color:var(--green-900);font-size:1.02rem}
+nav .brand .leaf{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--green-700),var(--green-300));display:grid;place-items:center;color:#fff;font-size:1rem}
+nav ul{display:flex;gap:6px;list-style:none}
+nav ul a{padding:8px 14px;border-radius:999px;font-size:.86rem;font-weight:500;color:var(--muted);transition:.2s}
+nav ul a:hover{background:var(--green-100);color:var(--green-800)}
+body.ai-mode #progress{background:linear-gradient(90deg,var(--amber-500),var(--pink-300))}
+body.ai-mode nav{background:rgba(253,250,245,.72)}
+body.ai-mode nav .brand{color:var(--amber-600)}
+body.ai-mode nav .brand .leaf{background:linear-gradient(135deg,var(--amber-600),var(--amber-300))}
+body.ai-mode nav ul a:hover{background:#fbe7cf;color:var(--amber-600)}
+.navtoggle{display:none}
+@media(max-width:820px){nav ul{display:none}}
+
+/* ===================== HERO ===================== */
+.hero{min-height:100vh;display:grid;grid-template-columns:1.05fr .95fr;align-items:center;gap:40px;
+  padding:120px 0 60px;background:
+   radial-gradient(circle at 90% 10%,var(--green-100),transparent 45%),
+   linear-gradient(180deg,#fff, var(--paper))}
+.hero .wrap{display:contents}
+.hero-text{padding-left:max(24px,calc((100vw - var(--maxw))/2 + 24px));position:relative;z-index:2}
+.hero-text h1{font-size:clamp(2.6rem,6vw,4.6rem);color:var(--green-900);margin:.4rem 0 .2rem}
+.hero-text h1 .accent{color:var(--green-500)}
+.hero-text .sub{font-size:clamp(1.05rem,2.2vw,1.4rem);color:var(--muted);max-width:30ch;margin-bottom:26px}
+.team-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:30px;max-width:34rem}
+.team-chips span{background:#fff;border:1px solid var(--green-100);color:var(--green-800);font-size:.82rem;font-weight:500;padding:7px 13px;border-radius:999px;box-shadow:var(--shadow-sm)}
+.cta{display:inline-flex;align-items:center;gap:10px;background:var(--green-800);color:#fff;font-weight:600;padding:14px 26px;border-radius:999px;box-shadow:var(--shadow);transition:transform .25s,box-shadow .25s}
+.cta:hover{transform:translateY(-3px)}
+.cta svg{transition:transform .25s}.cta:hover svg{transform:translateY(3px)}
+.hero-media{position:relative;height:100%;min-height:60vh;display:grid;place-items:center;z-index:1}
+.hero-media .frame{position:relative;width:min(90%,460px);aspect-ratio:4/5;border-radius:26px;overflow:hidden;box-shadow:var(--shadow);
+  border:6px solid #fff;transform:rotate(2deg)}
+.hero-media .frame img{width:100%;height:100%;object-fit:cover}
+.hero-media .ring{position:absolute;inset:auto -6% -6% auto;width:120px;height:120px;border:8px solid var(--green-300);border-radius:50%;opacity:.6;z-index:-1}
+.scroll-hint{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);color:var(--muted);font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;display:flex;flex-direction:column;align-items:center;gap:8px}
+.mouse{width:22px;height:36px;border:2px solid var(--muted);border-radius:12px;position:relative}
+.mouse::after{content:"";position:absolute;top:7px;left:50%;transform:translateX(-50%);width:4px;height:7px;border-radius:2px;background:var(--muted);animation:scrolly 1.6s infinite}
+@keyframes scrolly{0%{opacity:0;transform:translate(-50%,0)}40%{opacity:1}100%{opacity:0;transform:translate(-50%,12px)}}
+@media(max-width:880px){.hero{grid-template-columns:1fr;text-align:center;padding-top:110px}
+  .hero-text{padding-left:0;padding:0 24px}.team-chips{justify-content:center;margin-inline:auto}.hero-media{order:-1;min-height:auto;margin-top:10px}.hero-media .frame{transform:none;width:min(80%,320px)}.hero-text .sub{margin-inline:auto}}
+
+/* ===================== SECTION SHELL ===================== */
+.sec{padding:clamp(70px,11vh,120px) 0}
+.sec-head{max-width:60ch;margin-bottom:48px}
+.sec-head .eyebrow{margin-bottom:12px;display:block}
+
+/* reveal */
+.reveal{opacity:0;transform:translateY(34px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+.reveal.d1{transition-delay:.08s}.reveal.d2{transition-delay:.16s}.reveal.d3{transition-delay:.24s}.reveal.d4{transition-delay:.32s}
+
+/* ===================== OBJETIVOS (split) ===================== */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+.split .media{position:relative;border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);aspect-ratio:4/5}
+.split .media img{width:100%;height:100%;object-fit:cover}
+.split .media::before{content:"";position:absolute;left:0;top:0;bottom:0;width:14px;background:var(--green-800);z-index:2}
+.goals{list-style:none;display:grid;gap:18px;margin-top:28px}
+.goals li{display:flex;gap:16px;align-items:flex-start;background:#fff;border:1px solid var(--green-100);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow-sm)}
+.goals .num{flex:none;width:38px;height:38px;border-radius:11px;background:var(--green-100);color:var(--green-800);font-weight:800;display:grid;place-items:center}
+.goals h3{color:var(--green-900);font-size:1.05rem;margin-bottom:2px}
+.goals p{color:var(--muted);font-size:.95rem}
+@media(max-width:820px){.split{grid-template-columns:1fr;gap:34px}}
+
+/* ===================== STAT BAND ===================== */
+.statband{background:linear-gradient(135deg,var(--green-900),var(--green-700));color:#fff;border-radius:28px;padding:54px clamp(24px,5vw,64px);position:relative;overflow:hidden}
+.statband h2{color:#fff}
+.statband .lead{color:rgba(255,255,255,.78)}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:26px;margin-top:42px}
+.stat{position:relative;z-index:2}
+.stat .big{font-size:clamp(2.4rem,5vw,3.4rem);font-weight:800;line-height:1;color:var(--green-300);letter-spacing:-.02em}
+.stat .lbl{margin-top:10px;font-size:.92rem;color:rgba(255,255,255,.82)}
+.statband .stripes{top:-20px;right:40px;opacity:.18}
+.statband .dotgrid{bottom:-10px;left:-10px;opacity:.18;background-image:radial-gradient(#fff 2px,transparent 2.2px)}
+@media(max-width:820px){.stat-grid{grid-template-columns:repeat(2,1fr);gap:30px 18px}}
+
+/* ===================== PILLARS (fabricación) ===================== */
+.pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.pillar{background:#fff;border:1px solid var(--green-100);border-radius:var(--r);padding:30px 26px;box-shadow:var(--shadow-sm);transition:transform .3s,box-shadow .3s;position:relative;overflow:hidden}
+.pillar:hover{transform:translateY(-6px);box-shadow:var(--shadow)}
+.pillar .ic{width:54px;height:54px;border-radius:15px;background:linear-gradient(135deg,var(--green-700),var(--green-500));display:grid;place-items:center;color:#fff;margin-bottom:18px}
+.pillar h3{color:var(--green-900);margin-bottom:10px}
+.pillar p{color:var(--muted);font-size:.95rem}
+.pillar .tag{position:absolute;top:18px;right:18px;font-size:.74rem;font-weight:700;color:var(--green-500)}
+@media(max-width:820px){.pillars{grid-template-columns:1fr}}
+
+/* ===================== EXAMPLES (tabs) ===================== */
+.examples{display:grid;grid-template-columns:.9fr 1.1fr;gap:46px;align-items:center}
+.ex-tabs{display:grid;gap:14px}
+.ex-tab{text-align:left;background:#fff;border:1px solid var(--green-100);border-left:5px solid transparent;border-radius:14px;padding:18px 22px;cursor:pointer;transition:.25s;box-shadow:var(--shadow-sm)}
+.ex-tab:hover{border-left-color:var(--green-300)}
+.ex-tab.active{border-left-color:var(--green-700);background:var(--green-100)}
+.ex-tab h3{color:var(--green-900);font-size:1.05rem;display:flex;align-items:center;gap:10px}
+.ex-tab p{color:var(--muted);font-size:.9rem;margin-top:6px;max-height:0;overflow:hidden;opacity:0;transition:.35s}
+.ex-tab.active p{max-height:120px;opacity:1;margin-top:10px}
+.ex-visual{position:relative;border-radius:24px;overflow:hidden;aspect-ratio:5/4;box-shadow:var(--shadow);background:var(--green-900)}
+.ex-visual img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;opacity:0;transform:scale(1.08);transition:opacity .6s,transform .6s}
+.ex-visual img.show{opacity:1;transform:scale(1)}
+.ex-visual .cap{position:absolute;left:0;right:0;bottom:0;padding:20px 24px;background:linear-gradient(180deg,transparent,rgba(20,61,43,.85));color:#fff;font-weight:600;z-index:2}
+@media(max-width:820px){.examples{grid-template-columns:1fr;gap:28px}.ex-visual{order:-1}}
+
+/* ===================== COSTO PASIVO (feature) ===================== */
+.feature{display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center}
+.feature .media{border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);aspect-ratio:1/1;position:relative}
+.feature .media img{width:100%;height:100%;object-fit:cover}
+.feature .badge{position:absolute;left:18px;bottom:18px;background:rgba(255,255,255,.92);backdrop-filter:blur(4px);border-radius:14px;padding:14px 18px;box-shadow:var(--shadow-sm)}
+.feature .badge .big{font-size:1.8rem;font-weight:800;color:var(--green-800);line-height:1}
+.feature .badge .lbl{font-size:.78rem;color:var(--muted)}
+.feature ul{list-style:none;display:grid;gap:14px;margin-top:22px}
+.feature ul li{display:flex;gap:12px;color:var(--muted);font-size:.97rem}
+.feature ul li::before{content:"";flex:none;width:10px;height:10px;margin-top:8px;border-radius:50%;background:var(--green-500)}
+@media(max-width:820px){.feature{grid-template-columns:1fr;gap:30px}}
+
+/* ===================== AI TRANSITION + SECTION ===================== */
+.ai{background:
+   radial-gradient(circle at 12% 20%,rgba(244,201,93,.5),transparent 40%),
+   radial-gradient(circle at 88% 12%,rgba(243,185,201,.55),transparent 42%),
+   radial-gradient(circle at 70% 90%,rgba(205,182,240,.45),transparent 45%),
+   var(--ai-paper);
+  color:var(--ai-ink);position:relative;overflow:hidden}
+.ai .eyebrow{color:var(--amber-600)}
+.ai h2,.ai h3{color:var(--amber-600)}
+.ai .lead{color:var(--ai-muted)}
+.ai-divider{height:160px;background:linear-gradient(180deg,var(--paper),var(--ai-paper));position:relative}
+.ai-divider svg{position:absolute;bottom:0;width:100%;height:100%}
+.ai-hero{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;padding-top:20px}
+.ai-hero h2{font-size:clamp(2.4rem,5.5vw,3.8rem);line-height:1.02}
+.ai-hero .robot{position:relative;display:grid;place-items:center}
+.ai-hero .robot img{filter:drop-shadow(0 30px 50px rgba(201,138,30,.35));max-height:520px;width:auto}
+.ai-hero .glow{position:absolute;width:60%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(244,201,93,.6),transparent 70%);filter:blur(20px);z-index:-1}
+@media(max-width:820px){.ai-hero{grid-template-columns:1fr;text-align:center}.ai-hero .robot{order:-1}.ai-hero .robot img{max-height:340px}}
+
+.ai-cards{display:grid;grid-template-columns:1.1fr .9fr;gap:30px;align-items:stretch}
+.ai-card{background:rgba(255,255,255,.66);backdrop-filter:blur(8px);border:1px solid rgba(201,138,30,.18);border-radius:22px;padding:34px;box-shadow:0 18px 50px -28px rgba(201,138,30,.5)}
+.ai-card h3{margin-bottom:14px;font-size:1.4rem}
+.ai-card p{color:var(--ai-muted);margin-bottom:14px}
+.ai-card .avatar{display:flex;align-items:center;gap:18px;margin-bottom:22px}
+.ai-card .avatar img{width:84px;height:84px;border-radius:18px;object-fit:cover;border:3px solid var(--amber-300);box-shadow:var(--shadow-sm)}
+.ai-card .avatar b{display:block;color:var(--amber-600);font-size:1.15rem}
+.ai-card .avatar small{color:var(--ai-muted)}
+.levers{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
+.lever{background:#fff;border:1px solid rgba(201,138,30,.2);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:10px;font-weight:600;color:var(--ai-ink);font-size:.95rem}
+.lever .d{width:9px;height:9px;border-radius:50%;background:var(--amber-500)}
+.ai-side{position:relative;border-radius:22px;overflow:hidden;display:grid;place-items:center;background:linear-gradient(160deg,rgba(244,201,93,.3),rgba(243,185,201,.3))}
+.ai-side img{max-height:420px;width:auto;filter:drop-shadow(0 20px 40px rgba(0,0,0,.18))}
+@media(max-width:820px){.ai-cards{grid-template-columns:1fr}.levers{grid-template-columns:1fr 1fr}}
+
+/* QA accordion */
+.qa{display:grid;gap:14px;max-width:920px;margin:0 auto}
+.qitem{background:rgba(255,255,255,.7);border:1px solid rgba(201,138,30,.18);border-radius:16px;overflow:hidden}
+.qitem button{width:100%;text-align:left;background:none;border:0;padding:20px 24px;font-family:inherit;font-size:1.05rem;font-weight:600;color:var(--amber-600);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px}
+.qitem button .chev{flex:none;width:26px;height:26px;border-radius:50%;background:#fff;display:grid;place-items:center;color:var(--amber-600);transition:transform .3s}
+.qitem.open button .chev{transform:rotate(45deg)}
+.qitem .ans{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.qitem .ans p{padding:0 24px 22px;color:var(--ai-muted)}
+
+/* video */
+.videos{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:980px;margin:46px auto 0}
+.video-wrap{border-radius:22px;overflow:hidden;box-shadow:var(--shadow);aspect-ratio:16/9;background:#000}
+.video-wrap iframe{width:100%;height:100%;border:0}
+.vplay{display:grid;place-items:center;height:100%;color:#fff;cursor:pointer;background:linear-gradient(135deg,#1a1a1a,#333);transition:filter .25s}
+.vplay:hover{filter:brightness(1.12)}
+.vplay .pbtn{width:74px;height:74px;border-radius:50%;background:var(--amber-500);display:grid;place-items:center;margin:0 auto 14px;transition:transform .25s}
+.vplay:hover .pbtn{transform:scale(1.08)}
+.vplay b{font-size:1.05rem;display:block;text-align:center}
+@media(max-width:820px){.videos{grid-template-columns:1fr}}
+
+/* ===================== FOOTER ===================== */
+footer{background:var(--green-900);color:#cfe6d8;padding:60px 0 34px;position:relative;overflow:hidden}
+footer h3{color:#fff;font-size:1.5rem;margin-bottom:8px}
+footer .cols{display:grid;grid-template-columns:1.4fr 1fr;gap:40px;align-items:start}
+footer .team{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+footer .team span{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);padding:7px 14px;border-radius:999px;font-size:.85rem}
+footer .meta{font-size:.9rem;line-height:1.9;color:#9fc4ae}
+footer .rule{border-top:1px solid rgba(255,255,255,.12);margin-top:40px;padding-top:20px;font-size:.82rem;color:#8fb6a0;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+footer .dotgrid{bottom:30px;right:30px;opacity:.2;background-image:radial-gradient(#fff 2px,transparent 2.2px)}
+@media(max-width:820px){footer .cols{grid-template-columns:1fr}}
+
+/* back to top */
+#top{position:fixed;right:22px;bottom:22px;width:48px;height:48px;border-radius:50%;background:var(--green-800);color:#fff;display:grid;place-items:center;box-shadow:var(--shadow);opacity:0;pointer-events:none;transform:translateY(12px);transition:.3s;z-index:90;cursor:pointer;border:0}
+#top.show{opacity:1;pointer-events:auto;transform:none}
+body.ai-mode #top{background:var(--amber-600)}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<nav>
+  <a class="brand" href="#inicio"><span class="leaf">&#127807;</span> Tecnologías de Gestión</a>
+  <ul>
+    <li><a href="#objetivos">Objetivos</a></li>
+    <li><a href="#fabricacion">Fabricación</a></li>
+    <li><a href="#empaque">Empaque</a></li>
+    <li><a href="#ejemplos">Ejemplos</a></li>
+    <li><a href="#asistente">Asistente IA</a></li>
+  </ul>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero" id="inicio">
+  <div class="blob" style="width:420px;height:420px;background:var(--green-300);top:-80px;left:-120px"></div>
+  <div class="hero-text">
+    <span class="eyebrow">UVM · Laureate · Emprendimiento</span>
+    <h1>Emprendimiento e <span class="accent">Impacto Ambiental</span></h1>
+    <p class="sub">Un modelo de negocio donde la rentabilidad y la responsabilidad medioambiental son el mismo núcleo.</p>
+    <div class="team-chips">
+      <span>Pablo Moroni Calva</span>
+      <span>Melisa Flores Ávila</span>
+      <span>Luis Rosas Ramón</span>
+      <span>Frida Paola Sepúlveda</span>
+      <span>Isabella Torres Mendoza</span>
+    </div>
+    <a class="cta" href="#objetivos">Explorar el proyecto
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+    </a>
+  </div>
+  <div class="hero-media">
+    <div class="frame"><img src="assets/img/team.webp" alt="Equipo emprendedor revisando un proyecto"></div>
+    <span class="ring"></span>
+  </div>
+  <div class="scroll-hint"><span class="mouse"></span>scroll</div>
+</header>
+
+<!-- ============ OBJETIVOS ============ -->
+<section class="sec" id="objetivos">
+  <div class="wrap split">
+    <div class="media reveal"><img src="assets/img/woman.webp" alt="Emprendedora tomando notas"></div>
+    <div>
+      <div class="sec-head reveal">
+        <span class="eyebrow">Definición y objetivos</span>
+        <h2>Un negocio que rinde y repara</h2>
+        <p class="lead">El modelo busca generar valor económico mientras resuelve una problemática ambiental real.</p>
+      </div>
+      <ul class="goals">
+        <li class="reveal d1"><span class="num">1</span><div><h3>Generar ganancias y rendimientos</h3><p>Sostenibilidad económica como base para crecer y perdurar.</p></div></li>
+        <li class="reveal d2"><span class="num">2</span><div><h3>Resolver una problemática ambiental</h3><p>El impacto positivo no es accesorio: es la razón de ser del producto.</p></div></li>
+        <li class="reveal d3"><span class="num">3</span><div><h3>Rentabilidad + responsabilidad</h3><p>Ambas conviven en el núcleo de la operación, no en compartimentos separados.</p></div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FABRICACIÓN (pillars) ============ -->
+<section class="sec" id="fabricacion" style="background:var(--green-100)">
+  <span class="dotgrid" style="top:30px;right:30px"></span>
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Procesos de fabricación</span>
+      <h2>De dónde viene el impacto</h2>
+      <p class="lead">El empaque arrastra el costo ambiental de las industrias que lo producen. Tres frentes concentran las emisiones.</p>
+    </div>
+    <div class="pillars">
+      <div class="pillar reveal d1">
+        <span class="tag">GEI</span>
+        <div class="ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg></div>
+        <h3>Gases de efecto invernadero</h3>
+        <p>Hasta un <b>25%</b> de la emisión mundial, que escala al <b>30%</b> sumando toda la energía requerida para producir.</p>
+      </div>
+      <div class="pillar reveal d2">
+        <span class="tag">4–6%</span>
+        <div class="ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3"/></svg></div>
+        <h3>Industria química</h3>
+        <p>La mayor consumidora de energía industrial: responsable de entre el <b>4% y 6%</b> de las emisiones mundiales de GEI.</p>
+      </div>
+      <div class="pillar reveal d3">
+        <span class="tag">7–9%</span>
+        <div class="ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7l4-4 4 4 4-4 4 4v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/></svg></div>
+        <h3>Industria textil y derivados</h3>
+        <p>Entre los mayores productores de emisiones globales, <b>7% a 9%</b>. Ejemplos: cementera y textil.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ EMPAQUE (stat band) ============ -->
+<section class="sec" id="empaque">
+  <div class="wrap">
+    <div class="statband reveal">
+      <span class="stripes"></span><span class="dotgrid"></span>
+      <div class="sec-head" style="margin-bottom:0;max-width:62ch">
+        <span class="eyebrow" style="color:var(--green-300)">Impacto ambiental del empaque</span>
+        <h2>Dos crisis en un solo objeto</h2>
+        <p class="lead">El impacto del empaque se concentra en la crisis global de residuos plásticos y en la huella de carbono de su producción —sobre todo el plástico de un solo uso derivado del petróleo.</p>
+      </div>
+      <div class="stat-grid">
+        <div class="stat"><div class="big" data-count="9" data-suffix="%">0%</div><div class="lbl">del plástico fabricado se ha reciclado con éxito en la historia</div></div>
+        <div class="stat"><div class="big" data-count="22" data-suffix="%">0%</div><div class="lbl">de los desechos plásticos terminan mal gestionados en el ambiente</div></div>
+        <div class="stat"><div class="big" data-count="40" data-suffix="%">0%</div><div class="lbl">de todo el residuo plástico proviene exclusivamente de empaques</div></div>
+        <div class="stat"><div class="big" data-count="1800" data-suffix="M">0</div><div class="lbl">toneladas de GEI por transporte e incineración de plásticos (3.4% global)</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ EJEMPLOS (tabs) ============ -->
+<section class="sec" id="ejemplos" style="background:var(--green-100)">
+  <span class="stripes" style="top:0;left:0"></span>
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Ejemplos de emprendimiento</span>
+      <h2>Modelos que ya funcionan</h2>
+      <p class="lead">Tres caminos concretos donde el impacto ambiental se vuelve oportunidad de negocio.</p>
+    </div>
+    <div class="examples">
+      <div class="ex-tabs reveal">
+        <button class="ex-tab active" data-img="0">
+          <h3>&#9851; Gestión de residuos</h3>
+          <p>Empresas dedicadas al reciclaje o a la transformación de desechos en nuevos materiales útiles.</p>
+        </button>
+        <button class="ex-tab" data-img="1">
+          <h3>&#9728; Energías renovables</h3>
+          <p>Proyectos enfocados en energía solar, eólica y en el desarrollo de tecnologías limpias.</p>
+        </button>
+        <button class="ex-tab" data-img="2">
+          <h3>&#127793; Productos ecológicos</h3>
+          <p>Artículos con envases biodegradables, textiles orgánicos o cosmética natural.</p>
+        </button>
+      </div>
+      <div class="ex-visual reveal d1">
+        <img src="assets/img/office.webp" class="show" data-i="0" alt="Reciclaje y gestión de residuos">
+        <img src="assets/img/lounge.webp" data-i="1" alt="Energías renovables">
+        <img src="assets/img/woman.webp" data-i="2" alt="Productos ecológicos">
+        <div class="cap" data-cap>Gestión de residuos</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COSTO PASIVO ============ -->
+<section class="sec" id="almacen">
+  <div class="wrap feature">
+    <div class="media reveal">
+      <img src="assets/img/warehouse.webp" alt="Interior de almacén">
+      <div class="badge"><div class="big">19.78 kg</div><div class="lbl">CO&#8322; por m&#178; al año</div></div>
+    </div>
+    <div>
+      <div class="sec-head reveal" style="margin-bottom:18px">
+        <span class="eyebrow">Gastos de inventario</span>
+        <h2>El "costo pasivo" del almacenamiento</h2>
+        <p class="lead">Guardar inventario también emite. Operar un almacén genera emisiones aun cuando nada se mueve.</p>
+      </div>
+      <ul class="reveal d1">
+        <li>Refrigeración y congelación consumen hasta el <b>60%</b> de la energía del almacén.</li>
+        <li>El movimiento interno con montacargas suma emisiones contaminantes.</li>
+        <li>El empaque representa el <b>5%</b> de la energía total del ciclo de vida de un alimento, de la granja a la mesa.</li>
+        <li>Equilibrar suministro y demanda reduce costos, mejora el flujo de caja y baja el impacto del exceso.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ AI DIVIDER ============ -->
+<div class="ai-divider" aria-hidden="true">
+  <svg viewBox="0 0 1440 160" preserveAspectRatio="none"><path d="M0,160 L0,70 Q360,0 720,70 T1440,60 L1440,160 Z" fill="var(--ai-paper)"/></svg>
+</div>
+
+<!-- ============ ASISTENTE IA ============ -->
+<section class="sec ai" id="asistente" style="padding-top:10px">
+  <div class="wrap">
+    <div class="ai-hero">
+      <div class="reveal">
+        <span class="eyebrow">Tecnología que complementa</span>
+        <h2>Asistente Virtual EnergyCo</h2>
+        <p class="lead" style="margin-top:16px">En tecnologías para la gestión con enfoque en el emprendimiento con impacto social, la IA nos ayuda a complementar la toma de decisiones.</p>
+      </div>
+      <div class="robot reveal d1">
+        <span class="glow"></span>
+        <img src="assets/img/robot.webp" alt="Asistente virtual robótico">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ AI CARDS ============ -->
+<section class="sec ai" id="que-hace" style="padding-top:0">
+  <div class="wrap">
+    <div class="ai-cards">
+      <div class="ai-card reveal">
+        <div class="avatar">
+          <img src="assets/img/avatar.webp" alt="Avatar de la asistente">
+          <div><b>EnergyCo</b><small>Asistente del simulador Energ&amp;Co</small></div>
+        </div>
+        <p>Una asistente virtual especializada en el simulador de negocio <b>Energ&amp;Co</b>, diseñada para ayudar a comprender y optimizar decisiones en la gestión de una empresa productora de bebidas energéticas.</p>
+        <p>Su enfoque está en las decisiones estratégicas y operativas que mejoran el <b>Valor de la Compañía</b>:</p>
+        <div class="levers">
+          <div class="lever"><span class="d"></span>Precios</div>
+          <div class="lever"><span class="d"></span>Promoción</div>
+          <div class="lever"><span class="d"></span>Producto</div>
+          <div class="lever"><span class="d"></span>Distribución</div>
+        </div>
+      </div>
+      <div class="ai-side reveal d1">
+        <img src="assets/img/hand.webp" alt="Mano robótica señalando">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ QA ============ -->
+<section class="sec ai" id="preguntas" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head reveal" style="text-align:center;margin-inline:auto">
+      <span class="eyebrow">Preguntas al asistente</span>
+      <h2>Lo que el simulador respondió</h2>
+    </div>
+    <div class="qa">
+      <div class="qitem reveal">
+        <button>¿Cuáles son los impactos ambientales en la calidad del empaque en producción?<span class="chev">+</span></button>
+        <div class="ans"><p>Dentro del simulador Energ&amp;Co el enfoque está en la gestión empresarial, y no se detallan en profundidad los impactos ambientales de cada decisión. Pero en un contexto real, la calidad del empaque influye en la percepción de la marca, los costos de producción y la aceptación del cliente. Las decisiones se centran en asignación de recursos, desarrollo de productos, fijación de precios, distribución y promoción.</p></div>
+      </div>
+      <div class="qitem reveal d1">
+        <button>¿Cuáles serían los gastos generados en inventario con impacto ambiental?<span class="chev">+</span></button>
+        <div class="ans"><p>Administrar eficientemente el inventario es crucial para optimizar costos y evitar pérdidas. Las decisiones buscan mantener un equilibrio entre suministro y demanda para minimizar costos de almacenamiento y evitar pérdidas por productos no vendidos. Mejorar esa eficiencia reduce costos generales, mejora el flujo de caja y disminuye el impacto ambiental asociado al exceso de producción y almacenamiento.</p></div>
+      </div>
+    </div>
+
+    <div class="videos">
+      <div class="video-wrap reveal" data-video="https://www.youtube-nocookie.com/embed/GoXQOpEyODs">
+        <div class="vplay">
+          <div class="pbtn"><svg width="30" height="30" viewBox="0 0 24 24" fill="#1d1f2b"><path d="M8 5v14l11-7z"/></svg></div>
+          <b>Video del proyecto</b>
+        </div>
+      </div>
+      <div class="video-wrap reveal d1" data-video="https://www.youtube-nocookie.com/embed/GgIWqadiBsk">
+        <div class="vplay">
+          <div class="pbtn"><svg width="30" height="30" viewBox="0 0 24 24" fill="#1d1f2b"><path d="M8 5v14l11-7z"/></svg></div>
+          <b>Video complementario</b>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <span class="dotgrid"></span>
+  <div class="wrap cols">
+    <div>
+      <h3>Tecnologías de Gestión</h3>
+      <p class="meta">Emprendimiento e Impacto Ambiental · Asistente Virtual EnergyCo</p>
+      <div class="team">
+        <span>Pablo Moroni Calva</span>
+        <span>Melisa Flores Ávila</span>
+        <span>Luis Rosas Ramón</span>
+        <span>Frida Paola Sepúlveda</span>
+        <span>Isabella Torres Mendoza</span>
+      </div>
+    </div>
+    <div class="meta">
+      UVM · Laureate Universities<br>
+      Proyecto académico<br>
+      Bebidas energéticas · Simulador Energ&amp;Co
+    </div>
+  </div>
+  <div class="wrap rule">
+    <span>© 2026 · Proyecto de presentación</span>
+    <span>Hecho como apoyo interactivo a la exposición</span>
+  </div>
+</footer>
+
+<button id="top" aria-label="Volver arriba">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<script>
+/* progress bar */
+const prog=document.getElementById('progress'),topBtn=document.getElementById('top');
+addEventListener('scroll',()=>{
+  const h=document.documentElement,sc=h.scrollTop/(h.scrollHeight-h.clientHeight);
+  prog.style.width=(sc*100)+'%';
+  topBtn.classList.toggle('show',h.scrollTop>600);
+},{passive:true});
+topBtn.onclick=()=>scrollTo({top:0,behavior:'smooth'});
+
+/* reveal on scroll */
+const io=new IntersectionObserver((es)=>{
+  es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});
+},{threshold:.18});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+/* count up */
+function countUp(el){
+  const target=+el.dataset.count, suf=el.dataset.suffix||'', dur=1400, t0=performance.now();
+  const fmt=n=> target>=1000 ? Math.round(n).toLocaleString('es') : Math.round(n);
+  function step(t){
+    const p=Math.min((t-t0)/dur,1), e=1-Math.pow(1-p,3);
+    el.textContent=fmt(target*e)+suf;
+    if(p<1)requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+const cio=new IntersectionObserver((es)=>{
+  es.forEach(e=>{if(e.isIntersecting){countUp(e.target);cio.unobserve(e.target);}});
+},{threshold:.6});
+document.querySelectorAll('[data-count]').forEach(el=>cio.observe(el));
+
+/* AI mode theme switch */
+const aiSec=document.getElementById('asistente');
+const aio=new IntersectionObserver((es)=>{
+  es.forEach(e=>document.body.classList.toggle('ai-mode',e.isIntersecting||window.scrollY>aiSec.offsetTop-200));
+},{threshold:.05,rootMargin:'-30% 0px -60% 0px'});
+aio.observe(aiSec);
+addEventListener('scroll',()=>{
+  document.body.classList.toggle('ai-mode',window.scrollY>aiSec.offsetTop-300);
+},{passive:true});
+
+/* examples tabs */
+const tabs=document.querySelectorAll('.ex-tab'),imgs=document.querySelectorAll('.ex-visual img'),cap=document.querySelector('[data-cap]');
+const caps=['Gestión de residuos','Energías renovables','Productos ecológicos'];
+tabs.forEach(tab=>tab.addEventListener('click',()=>{
+  tabs.forEach(t=>t.classList.remove('active'));tab.classList.add('active');
+  const i=+tab.dataset.img;
+  imgs.forEach(im=>im.classList.toggle('show',+im.dataset.i===i));
+  cap.textContent=caps[i];
+}));
+
+/* QA accordion */
+document.querySelectorAll('.qitem button').forEach(b=>b.addEventListener('click',()=>{
+  const it=b.parentElement,ans=it.querySelector('.ans');
+  const open=it.classList.toggle('open');
+  ans.style.maxHeight=open?ans.scrollHeight+'px':0;
+}));
+
+/* lazy videos */
+document.querySelectorAll('.video-wrap').forEach(vw=>{
+  vw.addEventListener('click',()=>{
+    vw.innerHTML='<iframe src="'+vw.dataset.video+'?autoplay=1&rel=0" title="Video del proyecto" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>';
+  },{once:true});
+});
+</script>
+</body>
+</html>
