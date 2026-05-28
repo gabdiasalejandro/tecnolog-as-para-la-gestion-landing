@@ -184,6 +184,14 @@ body.ai-mode nav ul a:hover{background:rgba(224,165,43,.14)}
 .score-meta b{display:block;font-size:1.5rem;color:var(--green-900);margin-bottom:4px}
 .score-meta p{color:var(--muted);max-width:30ch}
 @property --p{syntax:'<percentage>';inherits:false;initial-value:0%}
+/* reveal: real value replaces the selector */
+.real-tag{display:block;font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--green-500);font-weight:800;margin-bottom:1px}
+.qcard.revealed .qval{color:var(--green-800);font-size:2.4rem}
+.qtrack .mk-real{width:18px;height:18px;background:var(--green-700);box-shadow:0 0 0 5px rgba(34,117,79,.16),var(--shadow-sm)}
+.qtrack .mk-real b{font-size:.74rem;font-weight:800}
+/* quiz CTA band */
+.quiz-cta{background:var(--green-100);text-align:center}
+.quiz-cta .eyebrow{display:block;margin-bottom:10px}
 @media(max-width:820px){.quiz-grid{grid-template-columns:1fr}.score-meta{text-align:center}}
 
 /* ===================== AI TRANSITION + SECTION ===================== */

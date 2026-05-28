@@ -92,7 +92,7 @@ QUIZ.forEach((it,i)=>{
   grid.appendChild(c);
   const range=c.querySelector('input'),val=c.querySelector('.qval');
   range.addEventListener('input',()=>val.textContent=fmt(+range.value,it.unit));
-  it._el={range,val,reveal:c.querySelector('.qreveal'),track:c.querySelector('.qtrack'),res:c.querySelector('.qres')};
+  it._el={card:c,range,val,qrange:c.querySelector('.qrange'),reveal:c.querySelector('.qreveal'),track:c.querySelector('.qtrack'),res:c.querySelector('.qres')};
 });
 
 const btnReveal=document.getElementById('quizReveal'),btnReset=document.getElementById('quizReset'),
@@ -115,11 +115,13 @@ btnReveal.addEventListener('click',()=>{
   QUIZ.forEach(it=>{
     const g=+it._el.range.value,err=Math.abs(g-it.real),range=it.max-it.min;
     const pts=Math.max(0,Math.round(100*(1-err/range)));total+=pts;
-    it._el.range.disabled=true;
+    it._el.card.classList.add('revealed');
+    it._el.range.style.display='none';it._el.qrange.style.display='none';
+    it._el.val.innerHTML=`<span class="real-tag">Valor real</span>${fmt(it.real,it.unit)}`;
     const pYou=((g-it.min)/range)*100,pReal=((it.real-it.min)/range)*100;
     it._el.track.innerHTML=`<span class="mk mk-you" style="left:${pYou}%"><b>tú ${fmt(g,it.unit)}</b></span>`+
       `<span class="mk mk-real" style="left:${pReal}%"><b>real ${fmt(it.real,it.unit)}</b></span>`;
-    it._el.res.innerHTML=`<span class="qpts">${pts}/100</span>Te desviaste <b>${fmt(err,it.unit)}</b> del valor real.`;
+    it._el.res.innerHTML=`<span class="qpts">${pts}/100</span>Tu estimación: <b>${fmt(g,it.unit)}</b> · te desviaste ${fmt(err,it.unit)}.`;
     it._el.reveal.classList.add('show');
   });
   const pct=Math.round(total/MAXPTS*100),[r,desc]=rank(pct);
@@ -132,7 +134,7 @@ btnReveal.addEventListener('click',()=>{
 });
 
 btnReset.addEventListener('click',()=>{
-  QUIZ.forEach(it=>{const s=Math.round((it.min+it.max)/2);it._el.range.disabled=false;it._el.range.value=s;it._el.val.textContent=fmt(s,it.unit);it._el.reveal.classList.remove('show');it._el.track.innerHTML='';it._el.res.innerHTML='';});
+  QUIZ.forEach(it=>{const s=Math.round((it.min+it.max)/2);it._el.card.classList.remove('revealed');it._el.range.style.display='';it._el.qrange.style.display='';it._el.range.value=s;it._el.val.textContent=fmt(s,it.unit);it._el.reveal.classList.remove('show');it._el.track.innerHTML='';it._el.res.innerHTML='';});
   resultBox.hidden=true;btnReset.hidden=true;btnReveal.hidden=false;scoreRing.style.setProperty('--p','0%');
   document.getElementById('quiz').scrollIntoView({behavior:'smooth',block:'start'});
 });
