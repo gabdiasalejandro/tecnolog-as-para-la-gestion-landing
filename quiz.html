@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz · ¿Cuánto crees que…? — Tecnologías de Gestión</title>
+<meta name="description" content="Pon a prueba tu intuición sobre el impacto ambiental: estima cada dato y descubre tu puntaje.">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<div id="progress"></div>
+
+<nav>
+  <a class="brand" href="index.html"><span class="leaf">&#127807;</span> Tecnologías de Gestión</a>
+  <ul>
+    <li><a href="index.html#inicio">Inicio</a></li>
+    <li><a href="index.html#empaque">Datos</a></li>
+    <li><a href="index.html#asistente">Asistente IA</a></li>
+  </ul>
+</nav>
+
+<!-- ============ QUIZ ============ -->
+<section class="sec quiz quiz-page" id="quiz" style="background:var(--green-100)">
+  <div class="wrap">
+    <a class="back-link reveal" href="index.html" style="margin-bottom:18px">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 19l-7-7 7-7"/></svg>
+      Volver al inicio
+    </a>
+    <div class="sec-head reveal" style="text-align:center;margin-inline:auto">
+      <span class="eyebrow">Pon a prueba tu intuición</span>
+      <h2>¿Cuánto crees que…?</h2>
+      <p class="lead">Estima cada dato moviendo el deslizador. Al final te decimos qué tan cerca estuviste de la realidad.</p>
+    </div>
+    <div class="quiz-grid reveal" id="quizGrid"></div>
+    <div class="quiz-actions">
+      <button id="quizReveal" class="cta">Ver mi resultado
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12l5 5 9-11"/></svg>
+      </button>
+      <button id="quizReset" class="quiz-reset" hidden>&#8635; Reintentar</button>
+    </div>
+    <div class="quiz-result" id="quizResult" hidden>
+      <div class="score-ring" id="scoreRing"><div class="score-inner"><span id="scoreNum">0</span><small id="scoreMax">/500</small></div></div>
+      <div class="score-meta">
+        <b id="scoreRank"></b>
+        <p id="scorePct"></p>
+        <a class="cta ghost" href="index.html#asistente" style="margin-top:16px">Seguir al Asistente IA
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<button id="top" aria-label="Volver arriba">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<script>
+/* progress + nav + top */
+const prog=document.getElementById('progress'),topBtn=document.getElementById('top'),navEl=document.querySelector('nav');
+addEventListener('scroll',()=>{
+  const h=document.documentElement,sc=h.scrollTop/(h.scrollHeight-h.clientHeight||1);
+  prog.style.width=(sc*100)+'%';
+  topBtn.classList.toggle('show',h.scrollTop>600);
+  navEl.classList.toggle('scrolled',h.scrollTop>40);
+},{passive:true});
+topBtn.onclick=()=>scrollTo({top:0,behavior:'smooth'});
+
+/* reveal */
+const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.18});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+/* ===== QUIZ ===== */
+const QUIZ=[
+  {q:"Del plástico fabricado en toda la historia, ¿qué % se recicló con éxito?",min:0,max:100,step:1,real:9,unit:"%"},
+  {q:"¿Qué % del residuo plástico mundial proviene SOLO de empaques?",min:0,max:100,step:1,real:40,unit:"%"},
+  {q:"¿Qué % de los desechos plásticos terminan mal gestionados en el ambiente?",min:0,max:100,step:1,real:22,unit:"%"},
+  {q:"¿Cuántos kg de CO₂ emite operar un almacén por m² al año?",min:0,max:50,step:0.5,real:19.78,unit:" kg"},
+  {q:"¿Qué % de la energía de un almacén consume la refrigeración/congelación?",min:0,max:100,step:1,real:60,unit:"%"}
+];
+const grid=document.getElementById('quizGrid');
+const fmt=(n,u)=> (Math.round(n*100)/100).toLocaleString('es')+u;
+QUIZ.forEach((it,i)=>{
+  const start=Math.round((it.min+it.max)/2);
+  const c=document.createElement('div');c.className='qcard';
+  c.innerHTML=`<span class="qnum">${i+1}</span>
+    <p class="qtext">${it.q}</p>
+    <output class="qval">${fmt(start,it.unit)}</output>
+    <input type="range" min="${it.min}" max="${it.max}" step="${it.step}" value="${start}">
+    <div class="qrange"><span>${it.min}${it.unit}</span><span>${it.max}${it.unit}</span></div>
+    <div class="qreveal"><div class="qtrack"></div><p class="qres"></p></div>`;
+  grid.appendChild(c);
+  const range=c.querySelector('input'),val=c.querySelector('.qval');
+  range.addEventListener('input',()=>val.textContent=fmt(+range.value,it.unit));
+  it._el={range,val,reveal:c.querySelector('.qreveal'),track:c.querySelector('.qtrack'),res:c.querySelector('.qres')};
+});
+
+const btnReveal=document.getElementById('quizReveal'),btnReset=document.getElementById('quizReset'),
+  resultBox=document.getElementById('quizResult'),scoreNum=document.getElementById('scoreNum'),
+  scoreMax=document.getElementById('scoreMax'),scoreRank=document.getElementById('scoreRank'),
+  scorePct=document.getElementById('scorePct'),scoreRing=document.getElementById('scoreRing');
+const MAXPTS=QUIZ.length*100;
+scoreMax.textContent='/'+MAXPTS;
+
+function rank(p){
+  if(p>=90)return["¡Experto ambiental! 🌍","Tu intuición sobre el impacto ambiental es muy precisa."];
+  if(p>=70)return["Muy buena intuición 👏","Acertaste cerca en casi todo. Buen ojo para los datos."];
+  if(p>=50)return["Vas bien encaminado 🌱","Captaste la tendencia general; algunos datos te sorprendieron."];
+  if(p>=30)return["Sigue aprendiendo 📚","La realidad ambiental suele ser más dura de lo que parece."];
+  return["La realidad sorprende 😮","Estos números casi nunca son intuitivos: por eso vale la pena mostrarlos."];
+}
+
+btnReveal.addEventListener('click',()=>{
+  let total=0;
+  QUIZ.forEach(it=>{
+    const g=+it._el.range.value,err=Math.abs(g-it.real),range=it.max-it.min;
+    const pts=Math.max(0,Math.round(100*(1-err/range)));total+=pts;
+    it._el.range.disabled=true;
+    const pYou=((g-it.min)/range)*100,pReal=((it.real-it.min)/range)*100;
+    it._el.track.innerHTML=`<span class="mk mk-you" style="left:${pYou}%"><b>tú ${fmt(g,it.unit)}</b></span>`+
+      `<span class="mk mk-real" style="left:${pReal}%"><b>real ${fmt(it.real,it.unit)}</b></span>`;
+    it._el.res.innerHTML=`<span class="qpts">${pts}/100</span>Te desviaste <b>${fmt(err,it.unit)}</b> del valor real.`;
+    it._el.reveal.classList.add('show');
+  });
+  const pct=Math.round(total/MAXPTS*100),[r,desc]=rank(pct);
+  resultBox.hidden=false;btnReset.hidden=false;btnReveal.hidden=true;
+  scoreRank.textContent=r;scorePct.textContent=`${pct}% de acierto · ${desc}`;
+  scoreRing.style.setProperty('--p',pct+'%');
+  const t0=performance.now();
+  (function step(t){const k=Math.min((t-t0)/1200,1);scoreNum.textContent=Math.round(total*(1-Math.pow(1-k,3)));if(k<1)requestAnimationFrame(step);})(t0);
+  resultBox.scrollIntoView({behavior:'smooth',block:'center'});
+});
+
+btnReset.addEventListener('click',()=>{
+  QUIZ.forEach(it=>{const s=Math.round((it.min+it.max)/2);it._el.range.disabled=false;it._el.range.value=s;it._el.val.textContent=fmt(s,it.unit);it._el.reveal.classList.remove('show');it._el.track.innerHTML='';it._el.res.innerHTML='';});
+  resultBox.hidden=true;btnReset.hidden=true;btnReveal.hidden=false;scoreRing.style.setProperty('--p','0%');
+  document.getElementById('quiz').scrollIntoView({behavior:'smooth',block:'start'});
+});
+</script>
+</body>
+</html>
